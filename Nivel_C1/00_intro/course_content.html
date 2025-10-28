@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Plantilla de Curso — Módulos con detalles (ajustada 450px)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --card:#FFFFFF;
+      --ink:#333333;
+      --ink-2:#666666;
+      --muted:#A1A8B3;
+      --accent:#FF6A13;
+      --accent-2:#F24D00;
+      --ring:rgba(242,77,0,.25);
+      --ok:#22c55e;
+      --overlay: rgba(0,0,0,.08);
+    }
+    *{box-sizing:border-box}
+    html,body{
+      height:100%; 
+      margin:0; 
+      font-family:'Proxima Nova', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      background-color: #ffffff;
+    }
+    
+    /* ====== CONTENEDOR LIMITADO A 450px ====== */
+    .outer-container{
+      width: 100%;
+      height: 100%; /* 🔸 antes 540px */
+      max-height: 540px; /* 🔸 asegura no exceder el alto del iframe */
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 9px 0px;
+    }
+    .main-card{
+      position: relative;
+      height: 100%;
+      background:var(--card);
+      border-radius:16px;
+      border:1px solid rgba(255, 255, 255, 0.18);
+      box-shadow:0 4px 20px rgba(255, 255, 255, 0.05);
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* Encabezado compacto para que todo quepa */
+    header{
+      padding: 14px 16px 8px 16px;
+      border-bottom:1px solid rgba(148,163,184,.15);
+      flex: 0 0 auto;
+    }
+    h1{
+      font-size: clamp(18px, 2.4vw, 24px);
+      margin:0 0 4px;
+    }
+    .subtitle{
+      color:var(--ink-2);
+      margin:0;
+      font-size: 14px;
+    }
+
+    /* Zona de contenido con scroll interno (mantiene la altura total) */
+    .content{
+      position: relative;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      padding: 10px 12px 12px 12px;
+      overflow: hidden;
+      flex: 0 1 auto;
+    }
+
+    /* Lista de módulos con scroll para no superar 450px */
+    .modules-scroll{
+      overflow:auto;
+      padding-right: 6px;
+    }
+
+    .module{
+      background:var(--card);
+      border:1px solid rgba(148,163,184,.18);
+      border-radius:12px;
+      padding:12px 12px;
+      margin:5px 0;
+      position:relative;
+      transition:box-shadow .18s ease, border-color .18s ease, transform .18s ease;
+    }
+    .module:hover{ transform: translateY(-1px); box-shadow:0 8px 24px rgba(0,0,0,.08); border-color:rgba(148,163,184,.35)}
+    .module__row{display:flex; align-items:center; gap:10px; min-height: 34px;}
+    .module__title{font-weight:650; font-size:16px; color:var(--accent)}
+    .dot{width:6px; height:6px; border-radius:50%; background:rgba(148,163,184,.7); display:inline-block; margin:0 6px}
+    .muted{color:var(--muted); font-size:14px; display:flex; align-items:center; gap:6px}
+
+    .clock{width:16px; height:16px; vertical-align:middle}
+
+    /* Botón de detalles con flecha (chevron) */
+    .details-btn{
+      margin-left:auto;
+      appearance:none;
+      border:0;
+      background:transparent;
+      color:var(--accent);
+      font-weight:600;
+      cursor:pointer;
+      padding:6px 8px;
+      border-radius:10px;
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    .details-btn:focus-visible{outline:3px solid var(--ring)}
+    .details-btn:hover{background:rgba(242,77,0,.08)}
+    .chev{
+      width: 16px; height: 16px;
+      transition: transform .18s ease;
+      flex:0 0 auto;
+    }
+    .details-btn[aria-expanded="true"] .chev{ transform: rotate(90deg); }
+
+    /* Ocultamos los paneles inline (se mantienen en DOM para no eliminar nada) */
+    .panel{ display:none; }
+
+    /* ====== CAJÓN LATERAL IZQUIERDO ====== */
+    .side-drawer{
+      position:absolute;
+      inset: 0 auto 0 0;              /* pegado al costado izquierdo */
+      width: min(420px, 90%);
+      background: var(--card);
+      border-right:1px solid rgba(241, 181, 116, 0.22);
+      box-shadow: 6px 0 24px rgba(255, 255, 255, 0.08);
+      transform: translateX(-100%);
+      transition: transform .25s ease;
+      display:flex;
+      flex-direction:column;
+      z-index: 3;
+    }
+    .side-drawer.open{ transform: translateX(0); }
+    .drawer-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding: 12px 14px;
+      border-bottom:1px solid rgba(148,163,184,.15);
+      background: #fafafa;
+    }
+    .drawer-title{ font-weight:700; color:#111; font-size:16px; margin:0; }
+    .drawer-close{
+      border:0; background:transparent; cursor:pointer; font-size:20px; line-height:1;
+      padding:4px 8px; border-radius:8px; color:#444;
+    }
+    .drawer-close:focus-visible{ outline:3px solid var(--ring); }
+    .drawer-body{
+      padding: 12px 14px;
+      overflow:auto;
+      flex:1 1 auto;
+      color:var(--ink-2);
+      line-height:1.6;
+    }
+
+    /* CTA mantiene visibilidad dentro de 450px */
+    .cta{
+      display:flex; gap:12px; align-items:flex-start; background:rgba(248,122,64,.08);
+      border:1px dashed rgba(248,122,64,.25);
+      padding:10px 12px; border-radius:10px; margin:6px 0 2px;
+      flex:0 0 auto;
+    }
+    .badge{width:36px; height:36px; border-radius:9px; background:rgba(242,77,0,.1); display:grid; place-items:center}
+
+    /* Accesibilidad: reduce movimiento si el usuario lo pide */
+    @media (prefers-reduced-motion: reduce){
+      .details-btn, .side-drawer{transition:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="outer-container">
+    <div class="main-card">
+      <header>
+        <h1>Contenido del curso</h1>
+        <p class="subtitle">Domina los fundamentos, la ética y la regulación de la IA, para luego aplicar prompts básicos que optimicen su planeación educativa de manera responsable y contextualizada.</p>
+      </header>
+
+      <div class="content">
+        <!-- Drawer lateral (se rellena dinámicamente) -->
+        <aside class="side-drawer" aria-hidden="true" aria-label="Panel de detalles">
+          <div class="drawer-head">
+            <h2 class="drawer-title">Detalles</h2>
+            <button class="drawer-close" aria-label="Cerrar panel">×</button>
+          </div>
+          <div class="drawer-body" id="drawerContent"></div>
+        </aside>
+
+        <!-- Lista scrollable -->
+        <div class="modules-scroll" id="modules">
+          
+          <!-- ====== MÓDULO 1 ====== -->
+          <section class="module" data-duration="2 horas para finalizar">
+            <div class="module__row">
+              <div class="module__title">Fundamentos y ética de la IA</div>
+              <span class="muted">Capítulo 1</span>
+              <span class="dot" aria-hidden="true"></span>
+              <span class="muted">
+                <svg class="clock" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                <span class="duration">2 horas para finalizar</span>
+              </span>
+              <button class="details-btn" aria-expanded="false" aria-controls="p1">
+                <svg class="chev" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M8 5l8 7-8 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Ver detalles
+              </button>
+            </div>
+            <!-- Panel inline oculto (no se elimina) -->
+            <div id="p1" class="panel" role="region" aria-label="Detalles del Tema 1">
+              <div class="panel__inner">
+                En este capítulo, vas a explorar los fundamentos de la inteligencia artificial (IA) y el objetivo primordial es fortalecer tu pensamiento crítico ante los diversos beneficios y riesgos asociados con el uso de la inteligencia artificial en el contexto de la educación.
+                <hr class="hr">
+                <strong>Habilidades que obtendrás</strong>
+                <ul>
+                  <li>Fundamentos de la IA</li>
+                  <li>Análisis crítico de dilemas éticos</li>
+                  <li>Uso de IA para generar podcast educativos.</li>
+                  <li>Elaboración de lineamientos para un uso ético de la IA.</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <!-- ====== MÓDULO 2 ====== -->
+          <section class="module" data-duration="2 horas para finalizar">
+            <div class="module__row">
+              <div class="module__title">IA y otras tecnologías digitales.</div>
+              <span class="muted">Capítulo 2</span>
+              <span class="dot" aria-hidden="true"></span>
+              <span class="muted">
+                <svg class="clock" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                <span class="duration">2 horas para finalizar</span>
+              </span>
+              <button class="details-btn" aria-expanded="false" aria-controls="p1">
+                <svg class="chev" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M8 5l8 7-8 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Ver detalles
+              </button>
+            </div>
+            <!-- Panel inline oculto (no se elimina) -->
+            <div id="p1" class="panel" role="region" aria-label="Detalles del Tema 1">
+              <div class="panel__inner">
+                En este capítulo, vas a explorar los fundamentos de la inteligencia artificial (IA) y el objetivo primordial es fortalecer tu pensamiento crítico ante los diversos beneficios y riesgos asociados con el uso de la inteligencia artificial en el contexto de la educación.
+                <hr class="hr">
+                <strong>Habilidades que obtendrás</strong>
+                <ul>
+                  <li>Material interactivo</li>
+                  <li>Ejercicios interactivos</li>
+                  <li>1 Proyecto</li>
+                  <li>1 proyecto opcional</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <!-- ====== MÓDULO 3 ====== -->
+          <section class="module" data-duration="2 horas para finalizar">
+            <div class="module__row">
+              <div class="module__title">Dilemas éticos de la IA.</div>
+              <span class="muted">Capítulo 3</span>
+              <span class="dot" aria-hidden="true"></span>
+              <span class="muted">
+                <svg class="clock" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                <span class="duration">2 horas para finalizar</span>
+              </span>
+              <button class="details-btn" aria-expanded="false" aria-controls="p1">
+                <svg class="chev" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M8 5l8 7-8 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Ver detalles
+              </button>
+            </div>
+            <!-- Panel inline oculto (no se elimina) -->
+            <div id="p1" class="panel" role="region" aria-label="Detalles del Tema 1">
+              <div class="panel__inner">
+                En este capítulo, vas a explorar los fundamentos de la inteligencia artificial (IA) y el objetivo primordial es fortalecer tu pensamiento crítico ante los diversos beneficios y riesgos asociados con el uso de la inteligencia artificial en el contexto de la educación.
+                <hr class="hr">
+                <strong>Habilidades que obtendrás</strong>
+                <ul>
+                  <li>Fundamentos de la IA</li>
+                  <li>Análisis crítico de dilemas éticos</li>
+                  <li>Uso de IA para generar podcast educativos.</li>
+                  <li>Elaboración de lineamientos para un uso ético de la IA.</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <!-- ====== MÓDULO 4 ====== -->
+          <section class="module" data-duration="3 horas para finalizar">
+            <div class="module__row">
+              <div class="module__title">Práctica.</div>
+              <span class="muted">Capítulo 4</span>
+              <span class="dot" aria-hidden="true"></span>
+              <span class="muted">
+                <svg class="clock" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                <span class="duration">3 horas para finalizar</span>
+              </span>
+              <button class="details-btn" aria-expanded="false" aria-controls="p1">
+                <svg class="chev" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M8 5l8 7-8 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Ver detalles
+              </button>
+            </div>
+            <!-- Panel inline oculto (no se elimina) -->
+            <div id="p1" class="panel" role="region" aria-label="Detalles del Tema 1">
+              <div class="panel__inner">
+                En este capítulo, vas a explorar los fundamentos de la inteligencia artificial (IA) y el objetivo primordial es fortalecer tu pensamiento crítico ante los diversos beneficios y riesgos asociados con el uso de la inteligencia artificial en el contexto de la educación.
+                <hr class="hr">
+                <strong>Habilidades que obtendrás</strong>
+                <ul>
+                  <li>Material interactivo</li>
+                  <li>Ejercicios interactivos</li>
+                  <li>1 Proyecto</li>
+                  <li>1 proyecto opcional</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <!-- ====== MÓDULO 5 ====== -->
+          <section class="module" data-duration="1 horas para finalizar">
+            <div class="module__row">
+              <div class="module__title">Evaluación.</div>
+              <span class="muted">Capítulo 5</span>
+              <span class="dot" aria-hidden="true"></span>
+              <span class="muted">
+                <svg class="clock" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                <span class="duration">1 hora para finalizar</span>
+              </span>
+              <button class="details-btn" aria-expanded="false" aria-controls="p1">
+                <svg class="chev" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M8 5l8 7-8 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Ver detalles
+              </button>
+            </div>
+            <!-- Panel inline oculto (no se elimina) -->
+            <div id="p1" class="panel" role="region" aria-label="Detalles del Tema 1">
+              <div class="panel__inner">
+                En este capítulo, vas a explorar los fundamentos de la inteligencia artificial (IA) y el objetivo primordial es fortalecer tu pensamiento crítico ante los diversos beneficios y riesgos asociados con el uso de la inteligencia artificial en el contexto de la educación.
+                <hr class="hr">
+                <strong>Qué incluye</strong>
+                <ul>
+                  <li>Material interactivo</li>
+                  <li>Ejercicios interactivos</li>
+                  <li>1 Proyecto</li>
+                  <li>1 proyecto opcional</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <!-- CTA -->
+          <div class="cta">
+            <div class="badge" aria-hidden="true">🏅</div>
+            <div>
+              <strong>Obtén un certificado profesional</strong>
+              <div class="muted">Descarga como PDF esta credencial y agregala tu perfil de LinkedIn, currículum o CV. </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Gestionar un único cajón abierto y rotación de flecha
+    const drawer = document.querySelector('.side-drawer');
+    const drawerContent = document.getElementById('drawerContent');
+    const drawerTitle = document.querySelector('.drawer-title');
+    const closeBtn = document.querySelector('.drawer-close');
+
+    let currentBtn = null;
+
+    function openDrawer(fromButton, titleText, html) {
+      // Actualiza título y contenido
+      drawerTitle.textContent = titleText || 'Detalles';
+      drawerContent.innerHTML = html || '';
+
+      // Marca el botón actual como expandido
+      if (currentBtn && currentBtn !== fromButton){
+        currentBtn.setAttribute('aria-expanded','false');
+      }
+      currentBtn = fromButton;
+      currentBtn.setAttribute('aria-expanded','true');
+
+      // Abre el cajón
+      drawer.classList.add('open');
+      drawer.setAttribute('aria-hidden','false');
+    }
+
+    function closeDrawer() {
+      drawer.classList.remove('open');
+      drawer.setAttribute('aria-hidden','true');
+      if (currentBtn){
+        currentBtn.setAttribute('aria-expanded','false');
+        currentBtn = null;
+      }
+    }
+
+    closeBtn.addEventListener('click', closeDrawer);
+    // Cerrar con Escape
+    document.addEventListener('keydown', (e)=>{
+      if (e.key === 'Escape' && drawer.classList.contains('open')) closeDrawer();
+    });
+
+    // Configurar cada módulo
+    document.querySelectorAll('.module').forEach((mod)=>{
+      const btn = mod.querySelector('.details-btn');
+      const panel = mod.querySelector('.panel .panel__inner');
+      const title = mod.querySelector('.module__title')?.textContent?.trim() || 'Detalles';
+      const duration = mod.querySelector('.duration')?.textContent?.trim();
+
+      // Tooltip con duración
+      if (duration) mod.title = duration;
+
+      btn.addEventListener('click', ()=>{
+        // Si el mismo botón vuelve a pulsarse y el cajón está abierto, cierra
+        if (drawer.classList.contains('open') && currentBtn === btn){
+          closeDrawer();
+          return;
+        }
+        // Abre con el contenido del panel (mantiene DOM original sin eliminarlo)
+        openDrawer(btn, title, panel ? panel.innerHTML : '<em>Sin detalles</em>');
+      });
+    });
+  </script>
+</body>
+</html>

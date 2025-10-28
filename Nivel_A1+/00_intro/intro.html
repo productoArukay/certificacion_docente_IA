@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Presentación de Curso</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0px;
+      font-family: 'Proxima Nova', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #ffffff;
+      height: 100%;
+      overflow: hidden; /* 🔸 evita scroll */
+    }
+
+.course-presentation {
+  width: 100%;
+  height: 100%; /* 🔸 antes 540px */
+  max-height: 540px; /* 🔸 asegura no exceder el alto del iframe */
+  max-width: 1200px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  display: flex;
+  overflow: hidden; /* 🔸 evita scroll interno */
+}
+
+.left-column {
+  width: 60%;
+  padding: 32px; /* 🔸 ligeramente reducido */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden; /* 🔸 evita desbordes verticales */
+}
+
+.right-column {
+  width: 40%;
+  display: flex;
+  flex-direction: column;
+  background-color: #fafafa;
+  overflow: hidden; /* 🔸 evita desbordes */
+}
+    .subtitle {
+      color: #e45700;
+      font-size: 15px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .main-title {
+      color: #2c3e50;
+      font-size: 28px;
+      font-weight: 700;
+      font-family: Arial, sans-serif;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+
+    .description {
+      color: #666666;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    /* 🔸 Más alto el contenedor info bar */
+    .course-info-bar {
+      background: #e45700;
+      color: white;
+      padding: 18px 24px; /* antes 12px 20px */
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      min-height: 70px; /* altura mayor */
+    }
+
+    .info-item {
+      display: flex;
+      align-items: center;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .info-item .icon {
+      margin-right: 8px;
+      font-size: 16px;
+    }
+
+    .level-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* 🔸 Level-dots ahora en 2 filas */
+    .level-dots {
+      display: grid;
+      grid-template-columns: repeat(6, auto);
+      grid-template-rows: repeat(2, auto);
+      gap: 4px;
+      margin-left: 6px;
+    }
+
+    .level-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.3);
+    }
+
+    .level-dot.active { background: white; }
+
+    .bottom-section { margin-top: auto; }
+
+    .orange-subtitle {
+      color: #e45700;
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .course-content {
+      color: #666666;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .course-image {
+      height: 330px;
+      width: 100%;
+      padding: 40px 40px 0 40px;
+      position: relative;
+    }
+
+    .course-image-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+      z-index: 2;
+    }
+
+    .course-image-inner img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .objectives-box {
+      height: 70%;
+      background: #e45700;
+      color: white;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      margin-top: -20px;
+      position: relative;
+      z-index: 1;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .objectives-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-top: 10px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .objectives-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      flex: 1;
+      overflow: auto;
+    }
+
+    .objectives-list li {
+      margin-bottom: 8px;
+      padding-left: 20px;
+      position: relative;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .objectives-list li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    @media (max-width: 768px) {
+      .course-presentation {
+        flex-direction: column;
+        height: auto;
+        width: 95%;
+      }
+      .left-column, .right-column { width: 100%; }
+      .left-column { padding: 30px; }
+
+      .course-image {
+        padding: 20px 20px 0 20px;
+        height: 220px;
+      }
+      .objectives-box {
+        height: auto;
+        border-radius: 8px;
+        margin-top: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="course-presentation">
+    <div class="left-column">
+      <div class="top-section">
+        <div class="subtitle">CERTIFICACIÓN DOCENTE EN IA</div>
+        <h1 class="main-title">Aprendiz Crítico</h1>
+        <p class="description">
+          <strong>Asume la responsabilidad docente</strong> que exige la nueva era tecnológica, identificando los <strong>dilemas éticos clave</strong> que giran en torno a la transparencia de la Inteligencia Artificial. Es fundamental que empieces a elaborar <strong>tu listado inicial de principios</strong> para asegurar el <strong>uso ético y responsable de la IA</strong> en todos los contextos educativos.
+        </p>
+
+        <div class="course-info-bar">
+          <div class="info-item">
+            <span class="icon">🕐</span>
+            <div>
+              <div>10 Horas Total</div>
+              <div style="font-size: 11px; opacity: .9;">7h Teoría • 3h Práctica</div>
+            </div>
+          </div>
+          <div class="info-item">
+            <span class="icon">📊</span>
+            <div class="level-indicator">
+              <span>A1 Explorador</span>
+              <div class="level-dots">
+                <div class="level-dot active"></div>
+                <div class="level-dot"></div>
+                <div class="level-dot"></div>
+                <div class="level-dot"></div>
+                <div class="level-dot"></div>
+                <div class="level-dot"></div>
+                <div class="level-dot"></div>
+                <div class="level-dot"></div>
+                <div class="level-dot"></div>
+                <div class="level-dot"></div>
+                <div class="level-dot"></div>
+                <div class="level-dot"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bottom-section">
+        <h3 class="orange-subtitle">¿Qué aprenderás en este nivel?</h3>
+        <p class="course-content">
+          Este nivel transformador te llevará a dominar los fundamentos esenciales de la IA, distinguiéndola claramente de las herramientas digitales que ya conoces. Te desafiamos a fortalecer tu pensamiento crítico frente a los beneficios y riesgos, mientras identificas y enfrentas dilemas críticos como la privacidad, la transparencia y tu propia responsabilidad docente. A través del análisis de un podcast sobre la regulación estricta en la Unión Europea, culminarás creando tu propio listado de principios vitales para garantizar el uso ético y responsable de la IA en cualquier contexto educativo.
+        </p>
+      </div>
+    </div>
+
+    <div class="right-column">
+      <div class="course-image">
+        <div class="course-image-inner">
+          <img src="https://firebasestorage.googleapis.com/v0/b/arukay-ls-admin.appspot.com/o/iframes%2F(ES)_2025%20Certificaci%C3%B3n%20docente%20en%20IA%2FS1_Nivel%20A1%2Fimages%2Fimage_intro.jpg?alt=media&token=6e3df8da-cf1a-40ae-8770-26bb477f1e89" alt="Imagen del curso">
+        </div>
+      </div>
+
+      <div class="objectives-box">
+        <h3 class="objectives-title">Al finalizar el nivel serás capaz de:</h3>
+        <ul class="objectives-list">
+          <li>Reconocer los fundamentos básicos de la inteligencia artificial.</li>
+          <li>Analizar los principales dilemas éticos asociados a la IA en educación.</li>
+          <li>Elaborar un listado inicial de principios para un uso responsable de la IA en el contexto educativo.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
