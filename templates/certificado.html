@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Certificado</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 20px;
+            font-family: 'Proxima Nova', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: white;
+            min-height: 100%;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        /* Formulario de entrada */
+        .form-section {
+            padding: 60px 40px;
+            text-align: center;
+            background: white;
+        }
+
+        .form-title {
+            color: #2c3e50;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .form-subtitle {
+            color: #e45700;
+            font-size: 14px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 30px;
+        }
+
+        .form-description {
+            color: #666666;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .input-group {
+            margin-bottom: 30px;
+        }
+
+        .input-label {
+            display: block;
+            color: #2c3e50;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-align: left;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .name-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 16px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        .name-input:focus {
+            outline: none;
+            border-color: #e45700;
+        }
+
+        .generate-btn {
+            background: #e45700;
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .generate-btn:hover {
+            background: #c44100;
+        }
+
+        .generate-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Certificado */
+        .certificate-section {
+            display: none;
+            padding: 40px;
+            background: white;
+        }
+
+        .certificate {
+            width: calc(100% - 40px);
+            max-width: 760px;
+            margin: 20px auto;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border: 8px solid #e45700;
+            border-radius: 16px;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .certificate::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            border: 2px solid #e45700;
+            border-radius: 8px;
+            opacity: 0.3;
+        }
+
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 48px;
+            color: rgba(228, 87, 0, 0.08);
+            font-weight: 700;
+            z-index: 1;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .logo-space {
+            height: 80px;
+            width: 200px;
+            margin: 0 auto 20px;
+            border: 2px dashed #e45700;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #e45700;
+            font-size: 12px;
+            background: rgba(228, 87, 0, 0.05);
+            position: relative;
+            z-index: 2;
+        }
+
+        .certificate-header {
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .certificate-title {
+            color: #e45700;
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .certificate-subtitle {
+            color: #2c3e50;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .certificate-body {
+            margin: 40px 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .certificate-text {
+            color: #2c3e50;
+            font-size: 20px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .student-name {
+            color: #e45700;
+            font-size: 32px;
+            font-weight: 700;
+            margin: 20px 0;
+            text-decoration: underline;
+            text-decoration-color: #e45700;
+            text-underline-offset: 8px;
+        }
+
+        .course-details {
+            color: #666666;
+            font-size: 16px;
+            margin: 30px 0;
+            line-height: 1.6;
+        }
+
+        .certificate-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 50px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .date-section, .signature-section {
+            text-align: center;
+        }
+
+        .date-label, .signature-label {
+            color: #666666;
+            font-size: 12px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .date-value {
+            color: #2c3e50;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .signature-line {
+            width: 200px;
+            height: 2px;
+            background: #e45700;
+            margin: 0 auto 8px;
+        }
+
+        .signature-name {
+            color: #2c3e50;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .certificate-seal {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            width: 80px;
+            height: 80px;
+            background: #e45700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+            z-index: 3;
+        }
+
+        .action-buttons {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .action-btn {
+            background: #e45700;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #c44100;
+        }
+
+        .action-btn.secondary {
+            background: #666666;
+        }
+
+        .action-btn.secondary:hover {
+            background: #555555;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            .action-buttons {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .certificate {
+                padding: 40px 20px;
+            }
+            
+            .certificate-title {
+                font-size: 28px;
+            }
+            
+            .student-name {
+                font-size: 24px;
+            }
+            
+            .certificate-footer {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .certificate-seal {
+                width: 60px;
+                height: 60px;
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="container">
+            <!-- Formulario de entrada -->
+            <div class="form-section" id="formSection">
+                <h1 class="form-title">Generar Certificado</h1>
+                <div class="form-subtitle">Certificación Docente en IA - Nivel A1 Explorador</div>
+                <p class="form-description">
+                    ¡Felicitaciones por completar la certificación! Ingresa tu nombre completo para generar tu certificado oficial de nivel A1 Explorador.
+                </p>
+                
+                <form id="certificateForm">
+                    <div class="input-group">
+                        <label for="studentName" class="input-label">Nombre completo del estudiante:</label>
+                        <input 
+                            type="text" 
+                            id="studentName" 
+                            class="name-input" 
+                            placeholder="Ej: María González Pérez"
+                            required
+                            autocomplete="name"
+                        >
+                    </div>
+                    
+                    <button type="submit" class="generate-btn" id="generateBtn">
+                        Generar Certificado
+                    </button>
+                </form>
+            </div>
+
+            <!-- Certificado -->
+            <div class="certificate-section" id="certificateSection">
+                <div class="certificate">
+                    <div class="watermark">CERTIFICADO OFICIAL</div>
+                    <div class="certificate-seal">A1</div>
+                    
+                    <div class="logo-space">
+                        Espacio para tu logo institucional
+                    </div>
+                    
+                    <div class="certificate-header">
+                        <h1 class="certificate-title">Certificado</h1>
+                        <div class="certificate-subtitle">de Certificación Docente</div>
+                    </div>
+
+                    <div class="certificate-body">
+                        <p class="certificate-text">
+                            Se certifica que el/la docente
+                        </p>
+                        
+                        <div class="student-name" id="certificateStudentName">
+                            [Nombre del Docente]
+                        </div>
+                        
+                        <p class="certificate-text">
+                            ha completado exitosamente la certificación
+                        </p>
+                        
+                        <div class="course-details">
+                            <strong>Certificación Docente en Inteligencia Artificial</strong><br>
+                            <strong>Nivel A1 - Explorador</strong><br>
+                            Duración: 10 horas académicas<br>
+                            Modalidad: Virtual
+                        </div>
+                        
+                        <p class="certificate-text">
+                            Demostrando competencias fundamentales en el uso pedagógico<br>
+                            de herramientas de IA para la educación y transformación digital.
+                        </p>
+                    </div>
+
+                    <div class="certificate-footer">
+                        <div class="date-section">
+                            <div class="date-label">Fecha de emisión</div>
+                            <div class="date-value" id="certificateDate"></div>
+                        </div>
+                        
+                        <div class="signature-section">
+                            <div class="signature-line"></div>
+                            <div class="signature-label">Coordinador de Certificación</div>
+                            <div class="signature-name">Dra. Ana María Rodríguez</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="action-btn" onclick="window.print()">
+                        🖨️ Imprimir Certificado
+                    </button>
+                    <button class="action-btn" onclick="downloadCertificate()">
+                        📥 Descargar PDF
+                    </button>
+                    <button class="action-btn secondary" onclick="generateNew()">
+                        🔄 Generar Nuevo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Elementos del DOM
+        const formSection = document.getElementById('formSection');
+        const certificateSection = document.getElementById('certificateSection');
+        const certificateForm = document.getElementById('certificateForm');
+        const studentNameInput = document.getElementById('studentName');
+        const certificateStudentName = document.getElementById('certificateStudentName');
+        const certificateDate = document.getElementById('certificateDate');
+
+        // Establecer fecha actual
+        function setCurrentDate() {
+            const now = new Date();
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            };
+            certificateDate.textContent = now.toLocaleDateString('es-ES', options);
+        }
+
+        // Generar certificado
+        certificateForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const studentName = studentNameInput.value.trim();
+            
+            if (studentName.length < 2) {
+                alert('Por favor, ingresa un nombre válido (mínimo 2 caracteres)');
+                return;
+            }
+
+            // Actualizar nombre en el certificado
+            certificateStudentName.textContent = studentName;
+            
+            // Establecer fecha
+            setCurrentDate();
+            
+            // Mostrar certificado
+            formSection.style.display = 'none';
+            certificateSection.style.display = 'block';
+            
+            // Scroll al certificado
+            certificateSection.scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // Función para generar nuevo certificado
+        function generateNew() {
+            formSection.style.display = 'block';
+            certificateSection.style.display = 'none';
+            studentNameInput.value = '';
+            studentNameInput.focus();
+        }
+
+        // Función para descargar PDF funcional
+        function downloadCertificate() {
+            const studentName = certificateStudentName.textContent;
+            const currentDate = certificateDate.textContent;
+            
+            // Crear canvas para generar imagen del certificado
+            const certificate = document.querySelector('.certificate');
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Configurar canvas
+            canvas.width = 800;
+            canvas.height = 600;
+            
+            // Fondo blanco
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Borde principal
+            ctx.strokeStyle = '#e45700';
+            ctx.lineWidth = 8;
+            ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+            
+            // Borde interno
+            ctx.strokeStyle = '#e45700';
+            ctx.lineWidth = 2;
+            ctx.globalAlpha = 0.3;
+            ctx.strokeRect(40, 40, canvas.width - 80, canvas.height - 80);
+            ctx.globalAlpha = 1;
+            
+            // Marca de agua
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.rotate(-Math.PI / 4);
+            ctx.fillStyle = 'rgba(228, 87, 0, 0.08)';
+            ctx.font = 'bold 48px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('CERTIFICADO OFICIAL', 0, 0);
+            ctx.restore();
+            
+            // Sello A1
+            ctx.fillStyle = '#e45700';
+            ctx.beginPath();
+            ctx.arc(canvas.width - 80, 80, 40, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 24px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('A1', canvas.width - 80, 88);
+            
+            // Título
+            ctx.fillStyle = '#e45700';
+            ctx.font = 'bold 36px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('CERTIFICADO', canvas.width / 2, 150);
+            
+            ctx.fillStyle = '#2c3e50';
+            ctx.font = '18px Arial';
+            ctx.fillText('de Certificación Docente', canvas.width / 2, 180);
+            
+            // Texto principal
+            ctx.fillStyle = '#2c3e50';
+            ctx.font = '20px Arial';
+            ctx.fillText('Se certifica que el/la docente', canvas.width / 2, 230);
+            
+            // Nombre del estudiante
+            ctx.fillStyle = '#e45700';
+            ctx.font = 'bold 32px Arial';
+            ctx.fillText(studentName, canvas.width / 2, 280);
+            
+            // Línea bajo el nombre
+            ctx.strokeStyle = '#e45700';
+            ctx.lineWidth = 2;
+            const nameWidth = ctx.measureText(studentName).width;
+            ctx.beginPath();
+            ctx.moveTo((canvas.width - nameWidth) / 2, 290);
+            ctx.lineTo((canvas.width + nameWidth) / 2, 290);
+            ctx.stroke();
+            
+            // Texto continuación
+            ctx.fillStyle = '#2c3e50';
+            ctx.font = '20px Arial';
+            ctx.fillText('ha completado exitosamente la certificación', canvas.width / 2, 320);
+            
+            // Detalles del curso
+            ctx.font = 'bold 16px Arial';
+            ctx.fillText('Certificación Docente en Inteligencia Artificial', canvas.width / 2, 360);
+            ctx.fillText('Nivel A1 - Explorador', canvas.width / 2, 385);
+            ctx.font = '16px Arial';
+            ctx.fillText('Duración: 10 horas académicas | Modalidad: Virtual', canvas.width / 2, 410);
+            
+            // Texto final
+            ctx.font = '16px Arial';
+            ctx.fillText('Demostrando competencias fundamentales en el uso pedagógico', canvas.width / 2, 450);
+            ctx.fillText('de herramientas de IA para la educación y transformación digital.', canvas.width / 2, 470);
+            
+            // Fecha
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText('Fecha de emisión:', 80, 540);
+            ctx.font = 'bold 14px Arial';
+            ctx.fillText(currentDate, 80, 560);
+            
+            // Firma
+            ctx.textAlign = 'right';
+            ctx.strokeStyle = '#e45700';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(canvas.width - 280, 540);
+            ctx.lineTo(canvas.width - 80, 540);
+            ctx.stroke();
+            
+            ctx.font = '12px Arial';
+            ctx.fillText('Coordinador de Certificación', canvas.width - 80, 555);
+            ctx.font = 'bold 14px Arial';
+            ctx.fillText('Dra. Ana María Rodríguez', canvas.width - 80, 570);
+            
+            // Convertir canvas a blob y descargar
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Certificado_IA_A1_${studentName.replace(/\s+/g, '_')}.png`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+        }
+
+        // Enfocar el input al cargar
+        window.addEventListener('load', function() {
+            studentNameInput.focus();
+        });
+
+        // Validación en tiempo real
+        studentNameInput.addEventListener('input', function() {
+            const generateBtn = document.getElementById('generateBtn');
+            generateBtn.disabled = this.value.trim().length < 2;
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98fe6cd2920fcbc0',t:'MTc2MDY4OTczMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

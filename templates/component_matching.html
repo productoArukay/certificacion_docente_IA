@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Componente – Pareo (listas desplegables)</title>
+  <style>
+    :root{
+      --accent:#e45700ff; /* corporativo */
+      --ink:#434343;      /* títulos */
+      --muted:#666666;    /* párrafos */
+      --teal:#0a7a84;     /* controles */
+      --bar-bg:#eeeeee;
+    }
+    *{box-sizing:border-box}
+    body{ margin:0; background:#fff; }
+
+    /* ---- Contenedor requerido ---- */
+    .comp-wrap{
+      width:90%;
+      height:500px;
+      margin:16px auto;
+      border:1px solid #e9e9e9;
+      border-radius:12px;
+      overflow:hidden;
+      display:grid;
+      grid-template-rows: auto 1fr 8px;
+      grid-template-areas:
+        "head"
+        "content"
+        "prog";
+      background:#fff;
+      box-shadow: 0 4px 18px rgba(0,0,0,.06);
+    }
+
+    header{
+      grid-area:head;
+      padding:16px 20px 0 20px;
+      background:#efefef70;
+    }
+    h1{
+      margin:0 0 8px;
+      font:700 26px Arial, Helvetica, sans-serif; color:var(--ink);
+    }
+    p.desc{
+      margin:0 0 14px;
+      font:400 12px "Proxima Nova","ProximaNova",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      color:var(--muted); line-height:1.6;
+    }
+    .prompt{
+      font:700 14px Arial, Helvetica, sans-serif;
+      color:var(--accent);
+      margin:4px 0 12px;
+    }
+
+    .content{ grid-area:content; height:100%; overflow:auto; padding:0 18px 16px; }
+
+    /* Bloques de pareo */
+    .pair{ margin:12px 0 18px; }
+    .pair .q{
+      margin:0 0 8px;
+      font:400 12px "Proxima Nova","ProximaNova",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      color:var(--muted);
+    }
+
+    .select-wrap{
+      position:relative;
+      border-radius:2px;
+      overflow:hidden;
+      background:var(--teal);
+      color:#fff;
+      border:1px solid #0a6c75;
+    }
+    select{
+      appearance:none; -webkit-appearance:none; -moz-appearance:none;
+      width:100%;
+      padding:14px 44px 14px 16px;
+      font:700 16px Arial, Helvetica, sans-serif;
+      border:0; outline:none; background:transparent; color:#fff;
+      cursor:pointer;
+    }
+    .caret{
+      position:absolute; right:14px; top:50%; transform:translateY(-50%);
+      width:0; height:0; border-left:6px solid transparent; border-right:6px solid transparent;
+      border-top:8px solid #fff;
+      pointer-events:none;
+    }
+
+    /* Botones */
+    .actions{ display:flex; gap:12px; margin-top:8px; }
+    .btn{
+      border:0; border-radius:2px;
+      padding:12px 16px;
+      font:700 14px Arial, Helvetica, sans-serif;
+      cursor:pointer; color:#fff; background:#4b4e51;
+    }
+    .btn.secondary{ background:#7a7c80; }
+
+    /* Feedback */
+    .feedback{
+      margin:14px 0 0;
+      display:none;
+      border-radius:6px;
+      border:1px solid #e4e6ea;
+      background:#fafafa;
+      padding:10px 12px;
+      font:400 12px "Proxima Nova","ProximaNova",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      color:var(--muted);
+      line-height:1.6;
+    }
+    .feedback.correct{ border-color:#10b98155; box-shadow: inset 0 0 0 2px #10b98133; }
+    .feedback.incorrect{ border-color:#ef444455; box-shadow: inset 0 0 0 2px #ef444433; }
+
+    /* Barra de progreso */
+    .progress{ grid-area:prog; height:8px; background:var(--bar-bg); position:relative; }
+    .progress .bar{ position:absolute; inset:0 auto 0 0; width:0%; background:var(--accent); transition:width .25s ease; }
+  </style>
+</head>
+<body>
+  <!-- Cambia el id para identificar este HTML en tu orquestador -->
+  <section class="comp-wrap" data-component-id="match-001">
+    <header>
+      <h1>Pareo</h1>
+      <p class="desc">¿Puedes identificar algunos de los hechos y cifras clave? Elige una opción de cada lista y selecciona <strong>Entregar</strong>.</p>
+      <div class="prompt">Elija una opción de cada lista desplegable y seleccione Enviar.</div>
+    </header>
+
+    <div class="content" id="content">
+      <div class="pair" data-id="p1" data-answer="2014">
+        <div class="q">El proyecto Adapt Open Source se formó en:</div>
+        <div class="select-wrap">
+          <select>
+            <option value="" selected disabled>Seleccione una opción</option>
+            <option>2010</option>
+            <option>2012</option>
+            <option>2014</option>
+            <option>2016</option>
+          </select>
+          <div class="caret" aria-hidden="true"></div>
+        </div>
+      </div>
+
+      <div class="pair" data-id="p2" data-answer="2008">
+        <div class="q">Adapt se adhiere al nivel 'AA' de WCAG v2, publicadas en:</div>
+        <div class="select-wrap">
+          <select>
+            <option value="" selected disabled>Seleccione una opción</option>
+            <option>1999</option>
+            <option>2008</option>
+            <option>2018</option>
+          </select>
+          <div class="caret" aria-hidden="true"></div>
+        </div>
+      </div>
+
+      <div class="pair" data-id="p3" data-answer="Árabe">
+        <div class="q">¿Cuál de estos idiomas se beneficia del soporte RTL?</div>
+        <div class="select-wrap">
+          <select>
+            <option value="" selected disabled>Seleccione una opción</option>
+            <option>Español</option>
+            <option>Árabe</option>
+            <option>Francés</option>
+          </select>
+          <div class="caret" aria-hidden="true"></div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn" id="submit">Entregar</button>
+        <button class="btn secondary" id="show">Mostrar comentarios</button>
+      </div>
+
+      <div class="feedback" id="feedback"></div>
+    </div>
+
+    <div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
+  </section>
+
+  <script>
+    (function(){
+      const wrap = document.querySelector('.comp-wrap');
+      const id = wrap.getAttribute('data-component-id') || 'match-component';
+      const pairs = Array.from(document.querySelectorAll('.pair'));
+      const submit = document.getElementById('submit');
+      const show = document.getElementById('show');
+      const feedback = document.getElementById('feedback');
+      const bar = document.getElementById('bar');
+
+      function post(pct){
+        try {
+          window.parent && window.parent.postMessage({
+            type:'componentProgress',
+            componentId:id,
+            progress:pct,
+            completed: pct >= 95
+          }, '*');
+        } catch(e){}
+      }
+
+      function getFilledCount(){
+        return pairs.reduce((n, p)=> n + (p.querySelector('select').value ? 1 : 0), 0);
+      }
+
+      function updateProgress(finalize=false){
+        const total = pairs.length;
+        const filled = getFilledCount();
+        const pct = finalize ? 100 : Math.round((filled/total)*100 * 0.9); // hasta 90% al completar todos, 100% tras Entregar
+        bar.style.width = pct + '%';
+        post(pct);
+      }
+
+      pairs.forEach(p => {
+        const sel = p.querySelector('select');
+        sel.addEventListener('change', ()=> updateProgress(false));
+      });
+
+      function grade(){
+        const total = pairs.length;
+        const filled = getFilledCount();
+        if(filled < total){
+          feedback.style.display='block';
+          feedback.className='feedback incorrect';
+          feedback.textContent='Asegúrate de seleccionar una opción en cada lista.';
+          updateProgress(false);
+          return;
+        }
+        // Evaluar
+        let ok = true;
+        pairs.forEach(p => {
+          const ans = (p.dataset.answer || '').trim();
+          const val = (p.querySelector('select').value || '').trim();
+          if(ans !== val) ok = false;
+        });
+        feedback.style.display='block';
+        if(ok){
+          feedback.className='feedback correct';
+          feedback.textContent='¡Correcto! Todas las coincidencias son válidas.';
+        }else{
+          feedback.className='feedback incorrect';
+          const sol = pairs.map(p=>p.dataset.answer).join(' | ');
+          feedback.textContent='Algunas respuestas no coinciden. Soluciones: ' + sol + '.';
+        }
+        updateProgress(true);
+      }
+
+      submit.addEventListener('click', grade);
+      show.addEventListener('click', ()=>{
+        feedback.style.display='block';
+        feedback.className='feedback';
+        const sol = pairs.map(p=>p.dataset.answer).join(' | ');
+        feedback.textContent='Soluciones: ' + sol + '.';
+      });
+
+      // API para reconfigurar desde el orquestador
+      window.Match = {
+        setTitle(t){ document.querySelector('h1').textContent=t; },
+        setPrompt(html){ document.querySelector('.desc').innerHTML = html; },
+        setPairs(arr){ // [{question, options:[...], answer}]
+          const container = document.getElementById('content');
+          const nodes = container.querySelectorAll('.pair');
+          nodes.forEach(n=> n.remove());
+          arr.forEach((p,i)=>{
+            const wrap = document.createElement('div');
+            wrap.className='pair';
+            wrap.dataset.id = 'p'+(i+1);
+            wrap.dataset.answer = p.answer;
+            wrap.innerHTML = '<div class="q">'+p.question+'</div>' +
+              '<div class="select-wrap"><select><option value="" selected disabled>Seleccione una opción</option>' +
+              p.options.map(o=>'<option>'+o+'</option>').join('') +
+              '</select><div class="caret" aria-hidden="true"></div></div>';
+            container.insertBefore(wrap, document.querySelector('.actions'));
+          });
+          // Reasignar listeners
+          Array.from(document.querySelectorAll('.pair select')).forEach(s=> s.addEventListener('change', ()=> updateProgress(false)));
+          updateProgress(false);
+        }
+      };
+
+      // Inicial
+      updateProgress(false);
+    })();
+  </script>
+</body>
+</html>

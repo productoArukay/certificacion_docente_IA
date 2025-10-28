@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Componente – Pregunta de Opción Múltiple</title>
+  <style>
+    :root{
+      --accent:#e45700ff; /* corporativo */
+      --ink:#434343;      /* títulos */
+      --muted:#666666;    /* párrafos */
+      --teal:#0a7a84;     /* botones/alternativas */
+      --bar-bg:#eeeeee;
+    }
+    *{box-sizing:border-box}
+    body{ margin:0; background:#fff; }
+
+    /* ---- Contenedor requerido ---- */
+    .comp-wrap{
+      width:90%;
+      height:500px;
+      margin:16px auto;
+      border:1px solid #e9e9e9;
+      border-radius:12px;
+      overflow:hidden;
+      display:grid;
+      grid-template-columns: 1.05fr 1fr;
+      grid-template-rows: 1fr 8px;
+      grid-template-areas:
+        "left right"
+        "prog prog";
+      background:#fff;
+      box-shadow: 0 4px 18px rgba(0,0,0,.06);
+    }
+
+    .left{ grid-area:left; padding:22px 22px 16px; overflow:auto; background:#efefef70; }
+    .right{ grid-area:right; padding:22px; display:flex; align-items:center; justify-content:center; background:#efefef70; border-left:1px solid #e7e7e7; }
+
+    /* TITULOS y textos */
+    h1{
+      margin:0 0 8px;
+      font:700 26px Arial, Helvetica, sans-serif; color:var(--ink);
+    }
+    p.desc{
+      margin:0 0 18px;
+      font:400 12px "Proxima Nova","ProximaNova",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      color:var(--muted); line-height:1.6;
+    }
+    .prompt{
+      font:700 14px Arial, Helvetica, sans-serif;
+      color:var(--accent);
+      margin:0 0 10px;
+    }
+
+    /* Opciones */
+    .options{ display:flex; flex-direction:column; gap:10px; margin:10px 0 16px; }
+    .opt{
+      position:relative;
+      display:flex; align-items:center; gap:12px;
+      background:var(--teal);
+      color:#fff;
+      border-radius:2px;
+      padding:14px 16px;
+      cursor:pointer;
+      border:0;
+      text-align:left;
+      font:700 16px Arial, Helvetica, sans-serif;
+    }
+    .opt .ring{
+      width:20px; height:20px; border-radius:50%;
+      border:3px solid #fff; display:inline-block;
+      box-shadow: inset 0 0 0 6px transparent;
+      transition: box-shadow .15s ease;
+      flex:0 0 20px;
+      background:transparent;
+    }
+    .opt.selected .ring{ box-shadow: inset 0 0 0 6px #fff; }
+    .opt[aria-disabled="true"]{ opacity:.85; cursor:default; }
+
+    /* Botones */
+    .actions{ display:flex; gap:10px; }
+    .btn{
+      border:0; border-radius:2px;
+      padding:12px 14px;
+      font:700 14px Arial, Helvetica, sans-serif;
+      cursor:pointer;
+    }
+    .btn.primary{ background:#4b4e51; color:#fff; }
+    .btn.secondary{ background:#7a7c80; color:#fff; }
+
+    /* Feedback */
+    .feedback{
+      margin-top:12px;
+      display:none;
+      border-radius:6px;
+      border:1px solid #e4e6ea;
+      background:#fafafa;
+      padding:10px 12px;
+      font:400 12px "Proxima Nova","ProximaNova",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      color:var(--muted);
+      line-height:1.6;
+    }
+    .feedback.correct{ border-color:#10b98155; box-shadow: inset 0 0 0 2px #10b98133; }
+    .feedback.incorrect{ border-color:#ef444455; box-shadow: inset 0 0 0 2px #ef444433; }
+
+    /* Media placeholder a la derecha */
+    .media{
+      width:100%; height:100%;
+      background:#bfc3c8; border:1px solid #d8dade; border-radius:6px;
+      display:flex; align-items:center; justify-content:center;
+      color:#fff; font:600 14px Arial;
+    }
+    .media img, .media iframe, .media video{ max-width:100%; max-height:100%; border:0; border-radius:6px; }
+
+    /* Barra de progreso */
+    .progress{ grid-area:prog; height:8px; background:var(--bar-bg); position:relative; }
+    .progress .bar{ position:absolute; inset:0 auto 0 0; width:0%; background:var(--accent); transition:width .2s ease; }
+
+    /* Responsive */
+    @media (max-width: 900px){
+      .comp-wrap{
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr 220px 8px;
+        grid-template-areas:
+          "left"
+          "right"
+          "prog";
+      }
+      .right{ border-left:0; border-top:1px solid #e7e7e7; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Cambia el id para identificar este HTML en tu orquestador -->
+  <section class="comp-wrap" data-component-id="mcq-001" data-multiple="false">
+    <div class="left">
+      <h1>Multiple Choice Question</h1>
+      <p class="desc">In what year was the first recorded instance of a large-scale assessment that consists solely of multiple-choice questions?</p>
+
+      <div class="prompt">Choose one option and select Submit.</div>
+
+      <!-- Lista de opciones: marca las correctas con data-correct="true" -->
+      <div class="options" id="options">
+        <button class="opt" data-id="a" data-correct="false">
+          <span class="ring" aria-hidden="true"></span> 1917
+        </button>
+        <button class="opt" data-id="b" data-correct="false">
+          <span class="ring" aria-hidden="true"></span> 1953
+        </button>
+        <button class="opt" data-id="c" data-correct="false">
+          <span class="ring" aria-hidden="true"></span> 1977
+        </button>
+        <button class="opt" data-id="d" data-correct="true">
+          <span class="ring" aria-hidden="true"></span> 1888
+        </button>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" id="submit">Submit</button>
+        <button class="btn secondary" id="show">Show feedback</button>
+      </div>
+
+      <div class="feedback" id="feedback"></div>
+    </div>
+
+    <div class="right">
+      <div class="media" id="media">Media (imagen/video/iframe opcional)</div>
+    </div>
+
+    <div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
+  </section>
+
+  <script>
+    (function(){
+      const wrap = document.querySelector('.comp-wrap');
+      const id = wrap.getAttribute('data-component-id') || 'mcq-component';
+      const isMultiple = (wrap.getAttribute('data-multiple') === 'true');
+      const opts = Array.from(document.querySelectorAll('.opt'));
+      const submit = document.getElementById('submit');
+      const show = document.getElementById('show');
+      const feedback = document.getElementById('feedback');
+      const bar = document.getElementById('bar');
+
+      let selected = new Set();
+      let submitted = false;
+
+      function post(pct){
+        try{
+          window.parent && window.parent.postMessage({
+            type:'componentProgress',
+            componentId:id,
+            progress:pct,
+            completed: pct >= 95
+          }, '*');
+        }catch(e){}
+      }
+      function updateProgress(){
+        if(submitted){ bar.style.width = '100%'; post(100); return; }
+        const pct = selected.size > 0 ? 50 : 0;
+        bar.style.width = pct + '%'; post(pct);
+      }
+
+      function toggleOption(btn){
+        if(btn.getAttribute('aria-disabled') === 'true') return;
+        if(isMultiple){
+          if(selected.has(btn)) { selected.delete(btn); btn.classList.remove('selected'); }
+          else { selected.add(btn); btn.classList.add('selected'); }
+        }else{
+          selected.forEach(b => b.classList.remove('selected'));
+          selected.clear();
+          selected.add(btn);
+          btn.classList.add('selected');
+        }
+        updateProgress();
+      }
+
+      opts.forEach(b=>{
+        b.addEventListener('click', ()=> toggleOption(b));
+        b.addEventListener('keydown', (e)=>{
+          if(e.key==='Enter' || e.key===' '){ e.preventDefault(); toggleOption(b); }
+        });
+        b.tabIndex = 0;
+      });
+
+      function grade(){
+        if(selected.size === 0){ feedback.style.display='block'; feedback.className='feedback incorrect'; feedback.textContent='Selecciona al menos una opción.'; return; }
+        submitted = true;
+        // Bloquear opciones
+        opts.forEach(o=> o.setAttribute('aria-disabled','true'));
+        // Evaluar
+        let ok = true;
+        opts.forEach(o=>{
+          const should = (o.dataset.correct === 'true');
+          const chosen = selected.has(o);
+          if(should !== chosen) ok = false;
+        });
+        // Mostrar feedback
+        feedback.style.display='block';
+        if(ok){
+          feedback.className = 'feedback correct';
+          feedback.textContent = '¡Correcto! Bien hecho.';
+        }else{
+          feedback.className = 'feedback incorrect';
+          // Indicar cuáles eran
+          const corrects = opts.filter(o=>o.dataset.correct==='true').map(o=>o.textContent.trim()).join(', ');
+          feedback.textContent = 'No es correcto. Respuesta(s) correcta(s): ' + corrects + '.';
+        }
+        updateProgress();
+      }
+
+      submit.addEventListener('click', grade);
+      show.addEventListener('click', ()=>{
+        const corrects = opts.filter(o=>o.dataset.correct==='true').map(o=>o.textContent.trim()).join(', ');
+        feedback.style.display='block';
+        feedback.className = 'feedback';
+        feedback.textContent = 'Respuesta(s) correcta(s): ' + corrects + '.';
+      });
+
+      // API mínima para el padre (opcional)
+      window.MCQ = {
+        setPrompt(html){ document.querySelector('.desc').innerHTML = html; },
+        setTitle(t){ document.querySelector('h1').textContent = t; },
+        setMultiple(flag){ wrap.setAttribute('data-multiple', String(!!flag)); },
+        setMediaImage(src, alt=''){ const m = document.getElementById('media'); m.innerHTML=''; const img = new Image(); img.src=src; img.alt=alt; m.appendChild(img); },
+        setMediaIframe(src, title=''){ const m = document.getElementById('media'); m.innerHTML=''; const f=document.createElement('iframe'); f.src=src; f.title=title; f.loading='lazy'; m.appendChild(f); },
+        setOptions(arr){ // arr: [{text, correct}]
+          const cont = document.getElementById('options'); cont.innerHTML='';
+          arr.forEach((o,i)=>{
+            const b=document.createElement('button');
+            b.className='opt'; b.dataset.id=String.fromCharCode(97+i);
+            b.dataset.correct = o.correct ? 'true':'false';
+            b.innerHTML = '<span class="ring" aria-hidden="true"></span> ' + o.text;
+            b.addEventListener('click', ()=> toggleOption(b));
+            b.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); toggleOption(b); } });
+            b.tabIndex = 0;
+            cont.appendChild(b);
+          });
+          selected.clear(); submitted=false; feedback.style.display='none'; updateProgress();
+        }
+      };
+
+      // Inicial
+      updateProgress();
+    })();
+  </script>
+</body>
+</html>

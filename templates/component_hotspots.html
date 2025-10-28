@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Componente – Gráfico caliente</title>
+  <style>
+    :root{
+      --accent:#e45700ff;
+      --ink:#434343;      /* Títulos */
+      --muted:#666666;    /* Párrafos */
+      --bar-bg:#eeeeee;
+      --pin:#0f7c85;      /* color del pin */
+    }
+    *{box-sizing:border-box}
+    body{ margin:0; background:#fff; }
+
+    /* ---- Contenedor requerido ---- */
+    .comp-wrap{
+      width:90%;
+      height:500px;
+      margin:16px auto;
+      border:1px solid #e9e9e9;
+      border-radius:12px;
+      overflow:hidden;
+      display:grid;
+      grid-template-rows: auto 1fr 8px;
+      grid-template-areas:
+        "head"
+        "content"
+        "prog";
+      background:#fff;
+      box-shadow: 0 4px 18px rgba(0,0,0,.06);
+    }
+
+    header{
+      grid-area:head;
+      padding:16px 20px 0 20px;
+    }
+    h1{
+      margin:0 0 6px;
+      font:700 26px Arial, Helvetica, sans-serif;
+      color:var(--ink);
+    }
+    p.intro{
+      margin:0 0 10px;
+      font:400 12px "Proxima Nova","ProximaNova",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      color:var(--muted);
+      line-height:1.6;
+    }
+    p.callout{
+      margin:8px 0 14px;
+      font:700 14px Arial, Helvetica, sans-serif;
+      color:var(--accent);
+    }
+
+    .content{
+      grid-area:content;
+      padding:0 18px 16px;
+      height:100%;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    /* Lienzo de imagen interactiva */
+    .hotspot-stage{
+      position:relative;
+      flex:1 1 auto;
+      background:#c5c7cc;              /* reemplaza por imagen */
+      border:1px solid #e1e1e1;
+      border-radius:6px;
+      overflow:hidden;
+      min-height:240px;
+    }
+    .hotspot-stage img{
+      width:100%; height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    /* Pin */
+    .pin{
+      position:absolute;
+      width:34px; height:34px;
+      border-radius:50%;
+      background:#fff;
+      border:0;
+      box-shadow: 0 2px 8px rgba(0,0,0,.15);
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer;
+      transform:translate(-50%,-50%);
+    }
+    .pin::after{
+      content:'';
+      display:block;
+      width:18px; height:18px;
+      background:var(--pin);
+      border-radius:50%;
+      mask: none;
+    }
+    .pin.visited{ outline:3px solid var(--accent); }
+
+    /* Tooltip/ventana */
+    .popover{
+      position:absolute;
+      min-width:220px;
+      max-width:360px;
+      background:#ffffff;
+      border:1px solid #e5e5e5;
+      border-radius:8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.14);
+      padding:12px 12px;
+      transform:translate(-50%,-100%);
+      z-index:5;
+    }
+    .popover h3{
+      margin:0 0 6px;
+      font:700 16px Arial, Helvetica, sans-serif;
+      color:var(--ink);
+    }
+    .popover p{
+      margin:0;
+      font:400 12px "Proxima Nova","ProximaNova",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      color:var(--muted);
+      line-height:1.55;
+    }
+    .close-x{
+      position:absolute; top:6px; right:8px;
+      border:0; background:transparent; cursor:pointer;
+      font:700 16px Arial; color:#999;
+    }
+
+    /* Dots de avance (opcional, estéticos) */
+    .mini-progress{
+      display:flex; gap:8px; align-items:center; justify-content:center;
+      padding:2px 0 0;
+    }
+    .mini-progress .dot{ width:8px; height:8px; border-radius:50%; background:#cfd3d8; }
+    .mini-progress .dot.done{ background:var(--accent); }
+
+    /* Barra de progreso global del componente */
+    .progress{ grid-area:prog; height:8px; background:var(--bar-bg); position:relative; }
+    .progress .bar{ position:absolute; inset:0 auto 0 0; width:0%; background:var(--accent); transition:width .25s ease; }
+
+    @media (max-width: 700px){
+      .popover{ max-width:86vw; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Cambia el id para identificar este HTML en tu orquestador -->
+  <section class="comp-wrap" data-component-id="hot-001">
+    <header>
+      <h1>Gráfico caliente</h1>
+      <p class="intro">
+        Puedes añadir interactividad a una imagen colocando iconos. Al seleccionar un icono,
+        muestra contenido asociado sobre la imagen.
+      </p>
+      <p class="intro">Este componente siempre está distribuido.</p>
+      <p class="callout">Seleccione los iconos para obtener más información.</p>
+    </header>
+
+    <div class="content">
+      <div class="hotspot-stage" id="stage" aria-label="Imagen interactiva">
+        <!-- Reemplaza el fondo por una imagen si lo deseas:
+        <img src="tu-imagen.jpg" alt="..." />
+        -->
+
+        <!-- Pines de ejemplo. Ajusta left/top en % -->
+        <button class="pin" style="left:18%; top:68%" data-title="Punto A"
+          data-body="Descripción del punto A. Cambia este texto por el tuyo."></button>
+
+        <button class="pin" style="left:44%; top:78%" data-title="Punto B"
+          data-body="Descripción del punto B con detalles relevantes."></button>
+
+        <button class="pin" style="left:64%; top:72%" data-title="Punto C"
+          data-body="Texto del punto C. Puedes enlazar a otras actividades."></button>
+
+        <!-- contenedor de popovers -->
+        <div id="pop"></div>
+      </div>
+
+      <!-- Indicadores mínimos de avance por pin -->
+      <div class="mini-progress" id="mp"></div>
+    </div>
+
+    <div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
+  </section>
+
+  <script>
+    (function(){
+      const wrap = document.querySelector('.comp-wrap');
+      const id = wrap.getAttribute('data-component-id') || 'hotspots-component';
+      const pins = Array.from(document.querySelectorAll('.pin'));
+      const pop = document.getElementById('pop');
+      const bar = document.getElementById('bar');
+      const mp = document.getElementById('mp');
+      let visited = new Set();
+
+      // Render mini dots
+      function renderMini(){
+        mp.innerHTML = '';
+        pins.forEach((_,i)=>{
+          const d = document.createElement('div');
+          d.className = 'dot' + (visited.has(i) ? ' done':'');
+          mp.appendChild(d);
+        });
+      }
+
+      // Open a popover near the pin
+      function openPop(idx){
+        const pin = pins[idx];
+        const title = pin.dataset.title || 'Detalle';
+        const body = pin.dataset.body || '';
+        const rect = pin.getBoundingClientRect();
+        const host = wrap.getBoundingClientRect();
+
+        pop.innerHTML = '';
+        const p = document.createElement('div');
+        p.className = 'popover';
+        p.style.left = (pin.offsetLeft) + 'px';
+        p.style.top = (pin.offsetTop - 12) + 'px';
+        p.innerHTML = '<button class="close-x" aria-label="Cerrar">&times;</button>' +
+                      '<h3>'+title+'</h3><p>'+body+'</p>';
+        pop.appendChild(p);
+
+        p.querySelector('.close-x').addEventListener('click', ()=>{ pop.innerHTML=''; });
+
+        // Mark visited
+        visited.add(idx);
+        pin.classList.add('visited');
+        tick();
+        renderMini();
+      }
+
+      // Progress = porcentaje de pines visitados
+      function tick(){
+        const pct = Math.round((visited.size / pins.length) * 100);
+        bar.style.width = pct + '%';
+        try{
+          window.parent && window.parent.postMessage({
+            type:'componentProgress',
+            componentId:id,
+            progress:pct,
+            completed: pct >= 95
+          }, '*');
+        }catch(e){}
+      }
+
+      pins.forEach((pin, idx)=>{
+        pin.addEventListener('click', ()=> openPop(idx));
+        // Teclado
+        pin.tabIndex = 0;
+        pin.addEventListener('keydown', (e)=>{
+          if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openPop(idx); }
+        });
+        pin.setAttribute('aria-label', pin.dataset.title || 'Punto interactivo');
+      });
+
+      renderMini();
+      tick();
+    })();
+  </script>
+</body>
+</html>

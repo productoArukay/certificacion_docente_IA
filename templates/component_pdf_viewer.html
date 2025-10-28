@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Visor de PDFs — Dos columnas desde el título</title>
+  <style>
+    :root{
+      --accent:#e45700ff;
+      --ink:#282828;
+      --muted:#666666;
+      --bar-bg:#eeeeee;
+      --card:#ffffff;
+    }
+    *{box-sizing:border-box}
+    html, body { height:100%; }
+    body{ margin:0; background:#fff; }
+    html, body { overflow: hidden; }
+    /* ---- Contenedor ---- */
+    .comp-wrap{
+      width:90%;
+      height:95%;
+      margin:16px auto;
+      border:1px solid #e9e9e9;
+      border-radius:12px;
+      overflow:hidden;
+      display:grid;
+      grid-template-columns: 0.95fr 1.05fr;  /* izquierda: título + lista / derecha: visor */
+      grid-template-rows: auto 1fr 8px;      /* fila de título + contenido + progreso */
+      grid-template-areas:
+        "headL right"
+        "left  right"
+        "prog  prog";
+      background:#fff;
+      box-shadow: 0 4px 18px rgba(0,0,0,.06);
+      min-height: 520px;
+    }
+    .fill-viewport { height: 100vh-50px; }
+
+    /* Encabezado solo ocupa la columna izquierda en la fila superior */
+    header{
+      grid-area:headL;
+      padding:16px 20px 8px 20px;
+      border-right:1px solid #ececec;
+    }
+    h1{
+      margin:0 0 6px;
+      font:700 24px Arial, Helvetica, sans-serif;
+      color:var(--ink);
+    }
+    .subtitle{
+      font:700 13px Arial, Helvetica, sans-serif;
+      color:var(--accent);
+      margin-top:2px;
+    }
+    p.intro{
+      margin:6px 0 0;
+      font:400 12px system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      color:var(--muted);
+      line-height:1.55;
+    }
+
+    /* Columna izquierda — lista de documentos */
+    .left{
+      grid-area:left;
+      border-right:1px solid #ececec;
+      padding:10px 14px 12px 20px;
+      overflow:auto;
+      min-height: 0;
+    }
+    .doc{
+      border:1px solid #e5e7eb;
+      background:#fafbfc;
+      border-radius:10px;
+      padding:10px 12px;
+      margin:10px 0;
+      display:flex; gap:10px; align-items:center; justify-content:space-between;
+    }
+    .doc h3{
+      margin:0;
+      font:700 14px Arial, Helvetica, sans-serif;
+      color:var(--ink);
+    }
+    .doc p{
+      margin:2px 0 0; color:var(--muted);
+      font:400 12px system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    }
+    .doc .actions{ display:flex; gap:8px; }
+    .btn{
+      border:0; border-radius:18px; padding:8px 12px;
+      font:700 12px Arial, Helvetica, sans-serif; cursor:pointer; color:#fff; background:var(--accent);
+    }
+    .badge{
+      display:inline-block; padding:2px 8px; border-radius:12px; font:700 11px Arial;
+      background:#eef2f7; color:#4b5563; margin-left:6px;
+    }
+    .done{ background:#d1fae5; color:#065f46; }
+
+    /* Columna derecha — visor ocupa desde la fila superior */
+    .right{
+      grid-area:right;
+      padding:12px 12px 12px 12px;
+      display:flex; flex-direction:column; gap:10px;
+      min-height: 0;
+    }
+    .toolbar{
+      display:flex; gap:10px; align-items:center; justify-content:space-between;
+    }
+    .toolbar .info{
+      font:400 12px system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      color:var(--muted);
+    }
+    .toolbar .open-ext{
+      border:0; border-radius:18px; padding:8px 12px;
+      font:700 12px Arial, Helvetica, sans-serif; cursor:pointer; color:#fff; background:#4b4e51;
+    }
+    .viewer{
+      flex:1 1 auto;
+      border:1px solid #e1e4e8;
+      border-radius:10px;
+      overflow:hidden;
+      background:#f1f3f6;
+      display:flex; align-items:center; justify-content:center;
+      min-height: 0;
+    }
+    .viewer iframe, .viewer embed, .viewer object{
+      width:100%; height:100%; border:0; background:#fff;
+      display:block;
+    }
+
+    /* Progress */
+    .progress{ grid-area:prog; height:8px; background:var(--bar-bg); position:relative; }
+    .progress .bar{ position:absolute; inset:0 auto 0 0; width:0%; background:var(--accent); transition:width .25s ease; }
+
+    /* Responsive */
+    @media (max-width: 900px){
+      .comp-wrap{
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto 1fr 8px;
+        grid-template-areas:
+          "headL"
+          "left"
+          "right"
+          "prog";
+      }
+      header{ border-right:0; border-bottom:1px solid #ececec; }
+      .left{ border-right:0; border-bottom:1px solid #ececec; padding-right:20px; }
+    }
+  </style>
+</head>
+<body>
+  <section class="comp-wrap fill-viewport" data-component-id="pdf-002">
+    <header>
+      <h1>Visor de PDFs</h1>
+      <div class="subtitle">Dos columnas desde el título</div>
+      <p class="intro">El visor ocupa toda la columna derecha desde la parte superior, incluyendo el área del título.</p>
+    </header>
+
+    <aside class="left" id="list">
+      <div class="doc" data-src="https://firebasestorage.googleapis.com/v0/b/arukay-ls-admin.appspot.com/o/iframes%2F(ES)_2025%20Certificaci%C3%B3n%20docente%20en%20IA%2FS1_Nivel%20A1%2FPDF%2FInteligencia%20artificial_unesco.pdf?alt=media&token=61b28e7a-119e-45ec-af54-41cb0c13b67d" data-title="IA y educación - UNESCO" data-size="1.2 MB">
+        <div>
+          <h3>IA y educación - UNESCO <span class="badge">PDF</span></h3>
+          <p>Tutorial básico del curso.</p>
+        </div>
+        <div class="actions">
+          <button class="btn open">Abrir</button>
+        </div>
+      </div>
+      <div class="doc" data-src="https://firebasestorage.googleapis.com/v0/b/arukay-ls-admin.appspot.com/o/iframes%2F(ES)_2025%20Certificaci%C3%B3n%20docente%20en%20IA%2FS1_Nivel%20A1%2FPDF%2FRecomendaci%C3%B3n%20sobre.pdf?alt=media&token=42ee27e3-d372-4ab1-b958-1f4adda5d8b5" data-title="Ética de la IA - UNESCO" data-size="850 KB">
+        <div>
+          <h3>Recomendación sobre la ética de la IA - UNESCO <span class="badge">PDF</span></h3>
+          <p>Cuestiones éticas de IA.</p>
+        </div>
+        <div class="actions">
+          <button class="btn open">Abrir</button>
+        </div>
+      </div>
+      <div class="doc" data-src="https://firebasestorage.googleapis.com/v0/b/arukay-ls-admin.appspot.com/o/iframes%2F(ES)_2025%20Certificaci%C3%B3n%20docente%20en%20IA%2FS1_Nivel%20A1%2FPDF%2Fnormas%20armonizadas%20en%20materia%20de%20inteligencia%20artificial.pdf?alt=media&token=da7ff99f-a032-4fef-a053-4d67fc763d4c" data-title="Normas armonizadas de IA - UE" data-size="2.4 MB">
+        <div>
+          <h3>Normas armonizadas en materia de IA <span class="badge">PDF</span></h3>
+          <p>Reglamento UE.</p>
+        </div>
+        <div class="actions">
+          <button class="btn open">Abrir</button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="right">
+      <div class="toolbar">
+        <div class="info" id="info">Sin documento cargado</div>
+        <button class="open-ext" id="openExt" title="Abrir en nueva pestaña" disabled>Abrir en pestaña</button>
+      </div>
+      <div class="viewer" id="viewer" aria-label="Visor de documento PDF">
+        <div style="font:700 12px Arial; color:#9aa1a9;">Selecciona un PDF de la lista</div>
+      </div>
+    </main>
+
+    <div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
+  </section>
+
+  <script>
+    (function(){
+      const wrap = document.querySelector('.comp-wrap');
+      const id   = wrap.getAttribute('data-component-id') || 'pdf-viewer-component';
+      const list = document.getElementById('list');
+      const viewer = document.getElementById('viewer');
+      const info   = document.getElementById('info');
+      const openExt= document.getElementById('openExt');
+      const bar    = document.getElementById('bar');
+
+      const visited = new Set();
+
+      function post(pct){
+        try{
+          window.parent && window.parent.postMessage({
+            type:'componentProgress',
+            componentId:id,
+            progress:pct,
+            completed: pct >= 95
+          }, '*');
+        }catch(e){}
+      }
+      function updateProgress(){
+        const total = list.querySelectorAll('.doc').length;
+        const pct = Math.round((visited.size / Math.max(1,total))*100);
+        bar.style.width = pct + '%';
+        post(pct);
+      }
+      function loadPDF(src, title, size){
+        viewer.innerHTML = '';
+        const iframe = document.createElement('iframe');
+        iframe.src = src ? src + '#zoom=page-width' : '';
+        iframe.title = title || 'Documento PDF';
+        iframe.setAttribute('loading','lazy');
+        viewer.appendChild(iframe);
+
+        info.textContent = (title || 'Documento') + (size ? ' · ' + size : '');
+        openExt.disabled = !src;
+        openExt.onclick = ()=> { if(src) window.open(src, '_blank'); };
+
+        visited.add(src || title || Math.random().toString(36).slice(2));
+        updateProgress();
+      }
+      list.addEventListener('click', (e)=>{
+        const btn = e.target.closest('.open');
+        if(!btn) return;
+        const item = btn.closest('.doc');
+        const src = item.dataset.src || '';
+        const title = item.dataset.title || item.querySelector('h3')?.textContent || 'Documento';
+        const size = item.dataset.size || '';
+        item.querySelector('.badge')?.classList.add('done');
+        loadPDF(src, title, size);
+      });
+
+      window.PDFViewer = {
+        setDocs(docs){
+          list.innerHTML = '';
+          (docs||[]).forEach(d=>{
+            const el = document.createElement('div');
+            el.className = 'doc';
+            el.dataset.src = d.src || '';
+            el.dataset.title = d.title || 'Documento';
+            el.dataset.size = d.size || '';
+            el.innerHTML = '<div><h3>'+ (d.title||'Documento') +' <span class="badge">PDF</span></h3>'+
+                           (d.subtitle ? '<p>'+d.subtitle+'</p>' : '<p></p>') +
+                           '</div><div class="actions"><button class="btn open">Abrir</button></div>';
+            list.appendChild(el);
+          });
+          visited.clear();
+          updateProgress();
+        },
+        openAt(i){
+          const el = list.querySelectorAll('.doc')[i];
+          if(el){
+            loadPDF(el.dataset.src, el.dataset.title, el.dataset.size);
+          }
+        }
+      };
+
+      updateProgress();
+    })();
+  </script>
+</body>
+</html>

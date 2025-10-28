@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Componente – Cronología Interactiva</title>
+  <style>
+    :root{
+      --accent:#e45700ff; /* corporativo */
+      --ink:#434343;      /* títulos */
+      --muted:#666666;    /* párrafos */
+      --bar-bg:#eeeeee;   /* fondo de barra */
+      --track:#dadde1;    /* línea de tiempo */
+      --dot:#0e7c85;      /* punto activo */
+      --card:#ffffff;
+    }
+    *{box-sizing:border-box}
+    body{ margin:0; background:#fff; }
+
+    /* ---- Contenedor requerido ---- */
+    .comp-wrap{
+      width:90%;
+      height:500px;
+      margin:16px auto;
+      border:1px solid #e9e9e9;
+      border-radius:12px;
+      overflow:hidden;
+      display:grid;
+      grid-template-rows: auto 1fr 8px;
+      grid-template-areas: "head" "content" "prog";
+      background:#fff;
+      box-shadow: 0 4px 18px rgba(0,0,0,.06);
+    }
+
+    header{
+      grid-area:head;
+      padding:16px 20px 0 20px;
+    }
+    h1{
+      margin:0 0 6px;
+      font:700 26px Arial, Helvetica, sans-serif;
+      color:var(--ink);
+    }
+    p.intro{
+      margin:0 0 12px;
+      font:400 12px "Proxima Nova","ProximaNova",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      color:var(--muted);
+      line-height:1.6;
+    }
+
+    /* Área de la cronología */
+    .content{ grid-area:content; height:100%; padding:8px 18px 16px; display:flex; flex-direction:column; gap:12px; }
+
+    .timeline{
+      position:relative;
+      flex:1 1 auto;
+      border:1px solid #ececec;
+      border-radius:10px;
+      overflow:hidden;
+      background:linear-gradient(#fafbfc, #f6f8fa);
+      display:grid;
+      grid-template-rows: 1fr auto;
+    }
+
+    /* Track + scroll horizontal de hitos */
+    .track{
+      position:relative;
+      padding:18px 16px 12px;
+    }
+    .rail{
+      position:absolute;
+      left:0; right:0;
+      top:50%;
+      height:4px;
+      background:var(--track);
+      transform:translateY(-50%);
+    }
+    .stops{
+      position:relative;
+      display:flex;
+      gap:42px;
+      overflow-x:auto;
+      scroll-behavior:smooth;
+      padding:4px 6px 12px;
+    }
+    .stops::-webkit-scrollbar{ height:10px; }
+    .stops::-webkit-scrollbar-thumb{ background:#d3d7dc; border-radius:10px; }
+    .stop{
+      position:relative;
+      flex:0 0 auto;
+      width:120px;
+      text-align:center;
+    }
+    .dot{
+      width:16px; height:16px;
+      border-radius:50%;
+      background:#b8bdc4;
+      margin:0 auto 8px;
+      border:3px solid #fff;
+      box-shadow:0 0 0 3px var(--track);
+    }
+    .stop.visited .dot{ background:var(--dot); box-shadow:0 0 0 3px rgba(14,124,133,.25); }
+    .label{
+      font:700 14px Arial, Helvetica, sans-serif;
+      color:var(--ink);
+    }
+    .year{
+      font:700 14px Arial, Helvetica, sans-serif;
+      color:var(--accent);
+      margin-bottom:4px;
+    }
+    .open-btn{
+      margin-top:6px;
+      border:0;
+      background:var(--accent);
+      color:#fff;
+      border-radius:16px;
+      padding:6px 10px;
+      font:700 12px Arial, Helvetica, sans-serif;
+      cursor:pointer;
+    }
+    .open-btn:focus{ outline:3px solid rgba(228,87,0,.35); }
+
+    /* Tarjeta expandible */
+    .card{
+      display:none;
+      grid-row:2/3;
+      background:var(--card);
+      border-top:1px solid #ececec;
+      padding:12px 14px;
+      gap:12px;
+    }
+    .card.open{ display:grid; grid-template-columns: 120px 1fr 36px; align-items:start; }
+    .card .thumb{
+      width:120px; height:86px; border-radius:8px; object-fit:cover; border:1px solid #e5e7eb; background:#ddd;
+    }
+    .card h3{
+      margin:0 0 6px;
+      font:700 18px Arial, Helvetica, sans-serif;
+      color:var(--ink);
+    }
+    .card p{
+      margin:0;
+      font:400 12px "Proxima Nova","ProximaNova",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      color:var(--muted);
+      line-height:1.65;
+    }
+    .close{
+      border:0; background:transparent; color:#9aa1a9; font:700 20px Arial; cursor:pointer;
+    }
+
+    /* Barra de progreso */
+    .progress{ grid-area:prog; height:8px; background:var(--bar-bg); position:relative; }
+    .progress .bar{ position:absolute; inset:0 auto 0 0; width:0%; background:var(--accent); transition:width .25s ease; }
+
+    /* Responsive */
+    @media (max-width:800px){
+      .card.open{ grid-template-columns: 1fr 36px; }
+      .card .thumb{ display:none; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Cambia el id para identificar este HTML en tu orquestador -->
+  <section class="comp-wrap" data-component-id="timeline-001">
+    <header>
+      <h1>Cronología histórica</h1>
+      <p class="intro">Explora eventos clave. Pulsa en cada hito para abrir una tarjeta con información expandible. Conforme avances, tu progreso se marcará automáticamente.</p>
+    </header>
+
+    <div class="content">
+      <div class="timeline" id="timeline">
+        <div class="track">
+          <div class="rail"></div>
+          <div class="stops" id="stops" aria-label="Línea de tiempo">
+            <!-- ======= HITOS (edita o duplica) ======= -->
+            <div class="stop" data-idx="0" data-title="Invención de la imprenta" data-img="" data-body="Johannes Gutenberg populariza la imprenta de tipos móviles, transformando la difusión del conocimiento.">
+              <div class="year">1450</div>
+              <div class="dot" aria-hidden="true"></div>
+              <div class="label">Imprenta</div>
+              <button class="open-btn" aria-label="Abrir evento 1450">Ver</button>
+            </div>
+            <div class="stop" data-idx="1" data-title="Revolución científica" data-img="" data-body="Surge un método sistemático de investigación que sienta las bases de la ciencia moderna.">
+              <div class="year">1600</div>
+              <div class="dot"></div>
+              <div class="label">Ciencia</div>
+              <button class="open-btn" aria-label="Abrir evento 1600">Ver</button>
+            </div>
+            <div class="stop" data-idx="2" data-title="Revolución industrial" data-img="" data-body="La mecanización y la energía de vapor cambian la producción y la sociedad.">
+              <div class="year">1760</div>
+              <div class="dot"></div>
+              <div class="label">Industria</div>
+              <button class="open-btn">Ver</button>
+            </div>
+            <div class="stop" data-idx="3" data-title="Era digital" data-img="" data-body="La computación, internet y los dispositivos móviles transforman la forma en que nos comunicamos y aprendemos.">
+              <div class="year">1970–2000</div>
+              <div class="dot"></div>
+              <div class="label">Digital</div>
+              <button class="open-btn">Ver</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tarjeta expandible -->
+        <div class="card" id="card" aria-live="polite">
+          <img class="thumb" id="thumb" src="" alt="Imagen del evento" />
+          <div>
+            <h3 id="cardTitle">Título del evento</h3>
+            <p id="cardBody">Descripción del evento.</p>
+          </div>
+          <button class="close" id="close" aria-label="Cerrar">×</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
+  </section>
+
+  <script>
+    (function(){
+      const wrap  = document.querySelector('.comp-wrap');
+      const id    = wrap.getAttribute('data-component-id') || 'timeline-component';
+      const stops = Array.from(document.querySelectorAll('.stop'));
+      const bar   = document.getElementById('bar');
+      const card  = document.getElementById('card');
+      const thumb = document.getElementById('thumb');
+      const cTitle= document.getElementById('cardTitle');
+      const cBody = document.getElementById('cardBody');
+      const close = document.getElementById('close');
+      const visited = new Set();
+
+      function openStop(el){
+        const title = el.dataset.title || '';
+        const body  = el.dataset.body  || '';
+        const img   = el.dataset.img   || '';
+
+        cTitle.textContent = title;
+        cBody.textContent  = body;
+
+        if(img){
+          thumb.src = img;
+          thumb.style.display = '';
+        }else{
+          thumb.removeAttribute('src');
+          thumb.style.display = 'none';
+        }
+        card.classList.add('open');
+        el.classList.add('visited');
+        visited.add(el.dataset.idx);
+        tick();
+      }
+
+      function closeCard(){ card.classList.remove('open'); }
+
+      function tick(){
+        // Progreso = % de hitos visitados
+        const pct = Math.round((visited.size / stops.length) * 100);
+        bar.style.width = pct + '%';
+        try {
+          window.parent && window.parent.postMessage({
+            type:'componentProgress',
+            componentId:id,
+            progress:pct,
+            completed: pct >= 95
+          }, '*');
+        } catch(e){}
+      }
+
+      stops.forEach(s => {
+        s.querySelector('.open-btn').addEventListener('click', ()=> openStop(s));
+        s.addEventListener('keydown', (e)=>{
+          if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openStop(s); }
+        });
+        s.tabIndex = 0;
+      });
+      close.addEventListener('click', closeCard);
+
+      // Inicial
+      tick();
+    })();
+  </script>
+</body>
+</html>
