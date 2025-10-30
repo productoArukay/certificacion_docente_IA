@@ -1,6 +1,78 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<style>
+
+/* =====================
+   Estilos unificados (Opción B)
+   Tipografía y escala global + variables de marca
+   ===================== */
+:root{
+  --brand:#E45700;
+  --brand-600:#E45700;
+  --brand-700:#c54b00;
+  --ink:#2C3E50;
+  --muted:#666666;
+  --bg:#ffffff;
+  --border:#e7e7e7;
+
+  /* Escala tipográfica */
+  --size-h1:26px;
+  --size-h2:20px;
+  --size-h3:16px;
+  --size-body:14px;
+}
+
+*{ box-sizing:border-box; }
+html,body{ height:100%; margin:0; background:var(--bg); color:var(--ink); }
+body{
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+  font-size: var(--size-body);
+  line-height: 1.6;
+}
+
+h1,h2,h3{ line-height:1.25; margin:0 0 .5em; font-weight:700; color:var(--ink); }
+h1{ font-size: var(--size-h1); }
+h2{ font-size: var(--size-h2); }
+h3{ font-size: var(--size-h3); }
+
+p{ margin:0 0 1em; color:var(--muted); }
+a{ color: var(--brand-600); text-decoration: underline; text-underline-offset: 2px; }
+a:hover{ color: var(--brand-700); }
+.button, button, [type="button"], [type="submit"]{
+  padding: .6rem .9rem; border-radius: 10px; border:1px solid var(--brand-600);
+  background: var(--brand); color:#fff; font-weight:650; cursor:pointer;
+}
+
+/* Utilidades */
+.text-accent{ color: var(--brand-600); }
+.bg-accent{ background: var(--brand); color:#fff; }
+.subtitle{ color: var(--brand-600); text-transform: uppercase; letter-spacing: .04em; }
+.main-title{ color: var(--ink); }
+.description, .intro{ color: var(--muted); }
+
+</style>
+<style id="typography-overrides">
+/* === Escala tipográfica equilibrada (32–24–18–14) + contraste en naranja === */
+body{
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px; line-height: 1.6;
+}
+h1{ font-size: 32px !important; font-weight: 700; line-height: 1.25; }
+h2{ font-size: 24px !important; font-weight: 700; line-height: 1.25; }
+h3{ font-size: 18px !important; font-weight: 600; line-height: 1.25; }
+p, li{ font-size: 14px !important; }
+
+/* Botones/acentos naranjas: texto siempre blanco */
+[style*="background:#e45700"],
+[style*="background:#E45700"],
+[style*="background:var(--accent)"],
+[style*="background: var(--accent)"],
+.on-accent, .on-accent *{
+  color:#fff !important;
+}
+.btn, .button{ color:#fff !important; }
+</style>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Componente – Acordeón (con imágenes)</title>
@@ -154,7 +226,7 @@
           <div class="acc-body" id="acc1-body" role="region" aria-labelledby="acc1-head">
             <p>Contenido del acordeón 1. Reemplace este texto por la información que desee mostrar a los estudiantes.</p>
             <!-- Imagen directamente después del texto -->
-            <img src="" alt="Descripción de la imagen (editar)" />
+            <img src="c:\Users\crist\Documents\Git_Arukay_2025\Certificacion_Docente\certificacion_docente_IA\public\Nivel_A1\images\Educador_En_Aula.png" alt="Descripción de la imagen (editar)" width="100%"/>
             <!-- O bien como figura con pie -->
             <!--
             <figure>
@@ -175,7 +247,7 @@
           <div class="acc-body" id="acc2-body" role="region" aria-labelledby="acc2-head">
             <p>Detalle los pasos del proceso, buenas prácticas o checklists. Puede insertar listas, imágenes o iframes.</p>
             <figure>
-              <img src="" alt="Infografía o diagrama del proceso (editar)" />
+              <img src="c:\Users\crist\Documents\Git_Arukay_2025\Certificacion_Docente\certificacion_docente_IA\public\Nivel_A1\images\Educador_En_Aula.png" alt="Descripción de la imagen (editar)" width="50%"/>
               <figcaption>Diagrama ilustrativo del proceso.</figcaption>
             </figure>
           </div>
@@ -190,7 +262,7 @@
           </button>
           <div class="acc-body" id="acc3-body" role="region" aria-labelledby="acc3-head">
             <p>Use este panel para recordar ideas clave o incluir capturas con ejemplos resueltos.</p>
-            <img src="" alt="Captura de ejemplo resuelto (editar)" />
+            <img src="c:\Users\crist\Documents\Git_Arukay_2025\Certificacion_Docente\certificacion_docente_IA\public\Nivel_A1\images\Educador_En_Aula.png" alt="Descripción de la imagen (editar)" width="25%"/>
           </div>
         </section>
       </div>
